@@ -6,7 +6,6 @@
     <title>Lucky Number VIP</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* ນຳໃຊ້ສີມາດຕະຖານຂອງ Telegram Theme ເພື່ອໃຫ້ແອັບກົມກືນ ແລະ ປ່ຽນສີຕາມ Dark/Light Mode ອັດຕະໂນມັດ */
         body {
             font-family: sans-serif;
             background-color: var(--tg-theme-bg-color, #ffffff);
@@ -29,7 +28,7 @@
             margin-top: 5px;
         }
         .input-group {
-            margin: 30px 0;
+            margin: 20px 0;
         }
         input[type="number"] {
             width: 70%;
@@ -45,10 +44,25 @@
             outline: none;
         }
         .message {
-            margin-top: 10px;
+            margin-top: 5px;
             font-size: 14px;
-            color: #dc3545; /* ສີແດງແຈ້ງເຕືອນ */
+            color: #dc3545;
             height: 20px;
+        }
+        /* ກ່ອງປະຫວັດການຊື້ */
+        .history-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: var(--tg-theme-secondary-bg-color, #f8f9fa);
+            border: 1px dashed gray;
+        }
+        .ticket-list {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--tg-theme-button-color, #2481cc);
+            margin-top: 10px;
+            letter-spacing: 2px;
         }
     </style>
 </head>
@@ -61,96 +75,83 @@
     </div>
 
     <h3>ເລືອກຕົວເລກນຳໂຊກຂອງທ່ານ</h3>
-    <p style="font-size: 14px; color: gray;">ກະລຸນາປ້ອນຕົວເລກ 5 ຫຼັກ (00000 - 99999)</p>
+    <p style="font-size: 14px; color: gray;">ປ້ອນຕົວເລກ 5 ຫຼັກ (00000 - 99999)</p>
 
     <div class="input-group">
         <input type="number" id="luckyNumber" placeholder="00000" oninput="checkInput()" pattern="\d*">
     </div>
-    
     <div class="message" id="errorMsg"></div>
 
+    <div class="history-box">
+        <div style="font-size: 14px; color: gray;">🎟️ ຕົວເລກທີ່ທ່ານຊື້ແລ້ວ:</div>
+        <div class="ticket-list" id="myTickets">ກຳລັງໂຫຼດປະຫວັດ...</div>
+    </div>
+
     <script>
-        // 1. ເອີ້ນໃຊ້ງານ Telegram Web App
         const tg = window.Telegram.WebApp;
-        tg.ready(); // ບອກ Telegram ວ່າແອັບພ້ອມແລ້ວ
-        
-        // ຂະຫຍາຍໜ້າຈໍແອັບໃຫ້ເຕັມຈໍມືຖື
+        tg.ready(); 
         tg.expand();
 
-        // 2. ລະບົບດຶງ ID ແບບໃໝ່ (ປ້ອງກັນ Telegram ບໍ່ສົ່ງ ID ມາໃຫ້)
         const user = tg.initDataUnsafe?.user;
-        
-        // ດຶງ ID ຈາກ URL ທີ່ເຮົາຫ້ອຍຕິດມາຈາກ server.js (ສຳລັບຕອນກົດປຸ່ມແປ້ນພິມ)
         const urlParams = new URLSearchParams(window.location.search);
         const urlUserId = urlParams.get('userid');
-        
-        // ເລືອກໃຊ້ ID ຈາກ Telegram ກ່ອນ, ຖ້າບໍ່ມີໃຫ້ໃຊ້ ID ຈາກ URL ແທນ
         const telegramId = (user && user.id) ? user.id : urlUserId;
 
-        // ຖ້າມີ ID ແລ້ວ ໃຫ້ແລ່ນໄປດຶງຍອດເງິນ
         if (telegramId) {
-            // ຖ້າມີຂໍ້ມູນຊື່ (ກົດຈາກປຸ່ມ Open) ໃຫ້ສະແດງຊື່ແທ້, ຖ້າບໍ່ມີຈະໃຊ້ຄຳວ່າ "ລູກຄ້າ" ເປັນຄ່າເລີ່ມຕົ້ນ
             if (user && user.first_name) {
                 document.getElementById('userInfo').innerText = `ສະບາຍດີ, ${user.first_name}!`;
             }
 
-            // ດຶງຍອດເງິນມາສະແດງ
+            // 1. ດຶງຍອດເງິນ
             fetch(`https://lucky-backend-api.onrender.com/api/balance/${telegramId}`)
-                .then(response => response.json())
+                .then(r => r.json())
+                .then(data => document.getElementById('balance').innerText = `${data.balance} USDT`)
+                .catch(() => document.getElementById('balance').innerText = "Error");
+
+            // 2. ດຶງປະຫວັດການຊື້ (ເພີ່ມໃໝ່)
+            fetch(`https://lucky-backend-api.onrender.com/api/tickets/${telegramId}`)
+                .then(r => r.json())
                 .then(data => {
-                    document.getElementById('balance').innerText = `${data.balance} USDT`;
+                    const ticketBox = document.getElementById('myTickets');
+                    if (data.tickets && data.tickets.length > 0) {
+                        // ເອົາເລກທຸກໂຕມາຕໍ່ກັນ ໂດຍຍະຫວ່າງດ້ວຍເຄື່ອງໝາຍຈຸດ
+                        ticketBox.innerText = data.tickets.map(t => t.ticket_number).join(', ');
+                    } else {
+                        ticketBox.innerText = "ຍັງບໍ່ມີປະຫວັດການຊື້";
+                    }
                 })
-                .catch(error => {
-                    document.getElementById('balance').innerText = "Error";
-                    console.error("ດຶງຂໍ້ມູນຜິດພາດ:", error);
-                });
+                .catch(() => document.getElementById('myTickets').innerText = "ບໍ່ສາມາດໂຫຼດປະຫວັດໄດ້");
         } else {
-            // ຖ້າຫາ ID ບໍ່ເຫັນເລີຍທັງສອງທາງ
             document.getElementById('balance').innerText = "ບໍ່ພົບ ID";
+            document.getElementById('myTickets').innerText = "-";
         }
 
         const luckyInput = document.getElementById('luckyNumber');
         const errorMsg = document.getElementById('errorMsg');
 
-        // 3. ຕັ້ງຄ່າປຸ່ມຫຼັກ (Main Button) ຂອງ Telegram ທີ່ຢູ່ລຸ່ມສຸດຂອງໜ້າຈໍ
         tg.MainButton.setText("ຊື້ຕົວເລກນີ້ (10 USDT)");
         tg.MainButton.textColor = "#ffffff";
         tg.MainButton.color = tg.themeParams.button_color || "#2481cc";
 
-        // 4. ຟັງຊັນກວດສອບການພິມຕົວເລກ
         function checkInput() {
             let val = luckyInput.value.toString();
-            
-            // ປ້ອງກັນການພິມເກີນ 5 ຫຼັກ
             if (val.length > 5) {
                 val = val.slice(0, 5);
                 luckyInput.value = val;
             }
-
-            // ຖ້າພິມຄົບ 5 ຫຼັກແທ້ ໃຫ້ສະແດງປຸ່ມຊື້
             if (val.length === 5) {
                 errorMsg.innerText = "";
-                tg.MainButton.show(); // ສະແດງປຸ່ມຂຶ້ນມາ
+                tg.MainButton.show();
             } else {
                 errorMsg.innerText = "ກະລຸນາປ້ອນຕົວເລກໃຫ້ຄົບ 5 ຫຼັກ";
-                tg.MainButton.hide(); // ເຊື່ອງປຸ່ມໄວ້ຖ້າພິມບໍ່ຄົບ
+                tg.MainButton.hide();
             }
         }
 
-        // 5. ເມື່ອລູກຄ້າກົດປຸ່ມ "ຊື້ຕົວເລກນີ້"
         Telegram.WebApp.onEvent('mainButtonClicked', function(){
             const numberToBuy = luckyInput.value;
-            
-            // ຈັດຮູບແບບຂໍ້ມູນເພື່ອສົ່ງກັບໄປຫາ Backend
-            const dataPayload = {
-                action: "buy_number",
-                number: numberToBuy
-            };
-
-            // ສົ່ງຂໍ້ມູນກັບໄປຫາແຊັດ Bot 
+            const dataPayload = { action: "buy_number", number: numberToBuy };
             tg.sendData(JSON.stringify(dataPayload));
-            
-            // ປິດໜ້າຈໍ Mini App ເພື່ອກັບໄປໜ້າແຊັດ
             tg.close();
         });
     </script>
