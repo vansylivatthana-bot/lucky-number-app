@@ -72,29 +72,41 @@
     <script>
         // 1. ເອີ້ນໃຊ້ງານ Telegram Web App
         const tg = window.Telegram.WebApp;
+        tg.ready(); // ບອກ Telegram ວ່າແອັບພ້ອມແລ້ວ
         
         // ຂະຫຍາຍໜ້າຈໍແອັບໃຫ້ເຕັມຈໍມືຖື
         tg.expand();
 
-        // 2. ດຶງຂໍ້ມູນຊື່ຜູ້ໃຊ້ ແລະ ຍອດເງິນຈາກ Backend
+        // 2. ລະບົບດຶງ ID ແບບໃໝ່ (ປ້ອງກັນ Telegram ບໍ່ສົ່ງ ID ມາໃຫ້)
         const user = tg.initDataUnsafe?.user;
-        if (user) {
-            // ສະແດງຊື່ລູກຄ້າ
-            document.getElementById('userInfo').innerText = `ສະບາຍດີ, ${user.first_name}!`;
+        
+        // ດຶງ ID ຈາກ URL ທີ່ເຮົາຫ້ອຍຕິດມາຈາກ server.js (ສຳລັບຕອນກົດປຸ່ມແປ້ນພິມ)
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlUserId = urlParams.get('userid');
+        
+        // ເລືອກໃຊ້ ID ຈາກ Telegram ກ່ອນ, ຖ້າບໍ່ມີໃຫ້ໃຊ້ ID ຈາກ URL ແທນ
+        const telegramId = (user && user.id) ? user.id : urlUserId;
 
-            // ----- ສ່ວນທີ່ເພີ່ມໃໝ່: ດຶງຍອດເງິນມາສະແດງ -----
-            const telegramId = user.id;
+        // ຖ້າມີ ID ແລ້ວ ໃຫ້ແລ່ນໄປດຶງຍອດເງິນ
+        if (telegramId) {
+            // ຖ້າມີຂໍ້ມູນຊື່ (ກົດຈາກປຸ່ມ Open) ໃຫ້ສະແດງຊື່ແທ້, ຖ້າບໍ່ມີຈະໃຊ້ຄຳວ່າ "ລູກຄ້າ" ເປັນຄ່າເລີ່ມຕົ້ນ
+            if (user && user.first_name) {
+                document.getElementById('userInfo').innerText = `ສະບາຍດີ, ${user.first_name}!`;
+            }
+
+            // ດຶງຍອດເງິນມາສະແດງ
             fetch(`https://lucky-backend-api.onrender.com/api/balance/${telegramId}`)
                 .then(response => response.json())
                 .then(data => {
-                    // ເມື່ອໄດ້ຍອດເງິນມາແລ້ວ ເອົາມາສະແດງແທນຄຳວ່າ 'ກຳລັງໂຫຼດ...'
                     document.getElementById('balance').innerText = `${data.balance} USDT`;
                 })
                 .catch(error => {
                     document.getElementById('balance').innerText = "Error";
                     console.error("ດຶງຂໍ້ມູນຜິດພາດ:", error);
                 });
-            // ----------------------------------------
+        } else {
+            // ຖ້າຫາ ID ບໍ່ເຫັນເລີຍທັງສອງທາງ
+            document.getElementById('balance').innerText = "ບໍ່ພົບ ID";
         }
 
         const luckyInput = document.getElementById('luckyNumber');
