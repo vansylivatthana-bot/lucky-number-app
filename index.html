@@ -54,7 +54,9 @@
     </style>
 </head>
 <body>
-
+    <div style="background: #2a2a2a; color: white; padding: 12px; border-radius: 10px; text-align: center; margin: 15px; font-size: 18px; border: 1px solid #f3c623; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        💰 ຍອດເງິນ: <strong id="balanceDisplay" style="color: #f3c623; font-size: 22px;">ກຳລັງໂຫຼດ...</strong> USDT
+    </div>
     <div class="header">
         <div id="userInfo">ສະບາຍດີ, ລູກຄ້າ!</div>
         <div style="margin-top: 10px; font-size: 14px;">ຍອດເງິນ In-App Wallet:</div>
@@ -74,7 +76,21 @@
     <script>
         // 1. ເອີ້ນໃຊ້ງານ Telegram Web App
         const tg = window.Telegram.WebApp;
-        
+        const telegramId = tg.initDataUnsafe?.user?.id;
+
+        // ຖ້າເປີດໃນ Telegram ໃຫ້ແລ່ນໄປດຶງຍອດເງິນຈາກ Render
+        if (telegramId) {
+            fetch(`https://lucky-backend-api.onrender.com/api/balance/${telegramId}`)
+                .then(response => response.json())
+                .then(data => {
+                    // ເອົາຕົວເລກທີ່ດຶງມາໄດ້ ໄປໃສ່ແທນຄຳວ່າ "ກຳລັງໂຫຼດ..."
+                    document.getElementById('balanceDisplay').innerText = data.balance;
+                })
+                .catch(error => {
+                    document.getElementById('balanceDisplay').innerText = "0";
+                    console.error("ດຶງຂໍ້ມູນຜິດພາດ:", error);
+                });
+        }
         // ຂະຫຍາຍໜ້າຈໍແອັບໃຫ້ເຕັມຈໍມືຖື
         tg.expand();
 
