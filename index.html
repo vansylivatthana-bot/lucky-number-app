@@ -6,76 +6,15 @@
     <title>Lucky Number VIP</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body {
-            font-family: sans-serif;
-            background-color: var(--tg-theme-bg-color, #ffffff);
-            color: var(--tg-theme-text-color, #000000);
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-        }
-        .header {
-            background-color: var(--tg-theme-secondary-bg-color, #f1f1f1);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .wallet-box {
-            font-size: 26px;
-            font-weight: bold;
-            color: #28a745;
-            margin-top: 5px;
-        }
-        .input-group {
-            margin: 20px 0;
-        }
-        input[type="number"] {
-            width: 70%;
-            padding: 15px;
-            font-size: 32px;
-            font-weight: bold;
-            letter-spacing: 5px;
-            text-align: center;
-            border: 2px solid var(--tg-theme-button-color, #2481cc);
-            border-radius: 12px;
-            background-color: var(--tg-theme-bg-color, #ffffff);
-            color: var(--tg-theme-text-color, #000000);
-            outline: none;
-        }
-        .message {
-            margin-top: 5px;
-            font-size: 14px;
-            color: #dc3545;
-            height: 20px;
-        }
-        /* ກ່ອງປະຫວັດ ແລະ ນາຍໜ້າ */
-        .history-box {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 10px;
-            background-color: var(--tg-theme-secondary-bg-color, #f8f9fa);
-            border: 1px dashed gray;
-        }
-        .ticket-list {
-            font-size: 20px;
-            font-weight: bold;
-            color: var(--tg-theme-button-color, #2481cc);
-            margin-top: 10px;
-            letter-spacing: 2px;
-        }
-        .referral-btn {
-            margin-top: 10px;
-            padding: 12px 20px;
-            background: var(--tg-theme-button-color, #2481cc);
-            color: var(--tg-theme-button-text-color, #ffffff);
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            width: 100%;
-            font-weight: bold;
-        }
+        body { font-family: sans-serif; background-color: var(--tg-theme-bg-color, #ffffff); color: var(--tg-theme-text-color, #000000); margin: 0; padding: 20px; text-align: center; }
+        .header { background-color: var(--tg-theme-secondary-bg-color, #f1f1f1); padding: 15px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .wallet-box { font-size: 26px; font-weight: bold; color: #28a745; margin-top: 5px; }
+        .input-group { margin: 20px 0; }
+        input[type="number"] { width: 70%; padding: 15px; font-size: 32px; font-weight: bold; letter-spacing: 5px; text-align: center; border: 2px solid var(--tg-theme-button-color, #2481cc); border-radius: 12px; background-color: var(--tg-theme-bg-color, #ffffff); color: var(--tg-theme-text-color, #000000); outline: none; }
+        .message { margin-top: 5px; font-size: 14px; color: #dc3545; height: 20px; }
+        .history-box { margin-top: 20px; padding: 15px; border-radius: 16px; background-color: var(--tg-theme-secondary-bg-color, #f8f9fa); border: 1px dashed gray; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .ticket-list { font-size: 20px; font-weight: bold; color: var(--tg-theme-button-color, #2481cc); margin-top: 10px; letter-spacing: 2px; }
+        .referral-btn { margin-top: 10px; padding: 12px 20px; background: var(--tg-theme-button-color, #2481cc); color: var(--tg-theme-button-text-color, #ffffff); border: none; border-radius: 8px; cursor: pointer; font-size: 14px; width: 100%; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -87,8 +26,6 @@
     </div>
 
     <h3>ເລືອກຕົວເລກນຳໂຊກຂອງທ່ານ</h3>
-    <p style="font-size: 14px; color: gray;">ປ້ອນຕົວເລກ 5 ຫຼັກ (00000 - 99999)</p>
-
     <div class="input-group">
         <input type="number" id="luckyNumber" placeholder="00000" oninput="checkInput()" pattern="\d*">
     </div>
@@ -101,116 +38,56 @@
 
     <div class="history-box" style="border-color: #4CAF50;">
         <h3 style="margin-top: 0; color: #4CAF50;">🤝 ລະບົບນາຍໜ້າ (Affiliate)</h3>
-        <p style="font-size: 14px; margin-bottom: 10px; color: gray;">ຊວນໝູ່ມາຊື້ ຮັບຄ່ານາຍໜ້າ 5% ເຂົ້າກະເປົາອັດຕະໂນມັດ!</p>
-        <p style="font-size: 16px; font-weight: bold;">ຈຳນວນໝູ່ທີ່ແນະນຳ: <span id="friendsCount" style="color: #e6b800;">ກຳລັງໂຫຼດ...</span> ຄົນ</p>
-        
-        <button class="referral-btn" onclick="copyReferralLink()">
-            📋 ກັອບປີ້ Link ສົ່ງໃຫ້ໝູ່
-        </button>
+        <p style="font-size: 16px; font-weight: bold;">ໝູ່ທີ່ແນະນຳ: <span id="friendsCount" style="color: #e6b800;">ກຳລັງໂຫຼດ...</span> ຄົນ</p>
+        <button class="referral-btn" onclick="copyReferralLink()">📋 ກັອບປີ້ Link ແນະນຳ</button>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.ready(); 
-        tg.expand();
-
+        tg.ready(); tg.expand();
         const user = tg.initDataUnsafe?.user;
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlUserId = urlParams.get('userid');
-        const telegramId = (user && user.id) ? user.id : urlUserId;
+        const telegramId = user?.id || new URLSearchParams(window.location.search).get('userid');
 
-        if (telegramId) {
-            if (user && user.first_name) {
-                document.getElementById('userInfo').innerText = `ສະບາຍດີ, ${user.first_name}!`;
+        // ຟັງຊັນດຶງຂໍ້ມູນແບບມີ Retry
+        async function fetchData(url, elementId, defaultValue) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error();
+                const data = await response.json();
+                
+                if (elementId === 'balance') document.getElementById(elementId).innerText = `${data.balance} USDT`;
+                else if (elementId === 'myTickets') {
+                    document.getElementById(elementId).innerText = (data.tickets && data.tickets.length > 0) ? data.tickets.map(t => t.ticket_number).join(', ') : "ຍັງບໍ່ມີປະຫວັດ";
+                } else if (elementId === 'friendsCount') {
+                    document.getElementById(elementId).innerText = data.friends_count || 0;
+                }
+            } catch (err) {
+                document.getElementById(elementId).innerText = "ກຳລັງເຊື່ອມຕໍ່...";
+                setTimeout(() => fetchData(url, elementId, defaultValue), 3000);
             }
-
-            // 1. ດຶງຍອດເງິນ
-            fetch(`https://lucky-backend-api.onrender.com/api/balance/${telegramId}`)
-                .then(r => r.json())
-                .then(data => document.getElementById('balance').innerText = `${data.balance} USDT`)
-                .catch(() => document.getElementById('balance').innerText = "Error");
-
-            // 2. ດຶງປະຫວັດການຊື້
-            fetch(`https://lucky-backend-api.onrender.com/api/tickets/${telegramId}`)
-                .then(r => r.json())
-                .then(data => {
-                    const ticketBox = document.getElementById('myTickets');
-                    if (data.tickets && data.tickets.length > 0) {
-                        ticketBox.innerText = data.tickets.map(t => t.ticket_number).join(', ');
-                    } else {
-                        ticketBox.innerText = "ຍັງບໍ່ມີປະຫວັດການຊື້";
-                    }
-                })
-                .catch(() => document.getElementById('myTickets').innerText = "ບໍ່ສາມາດໂຫຼດປະຫວັດໄດ້");
-
-            // 3. ດຶງຂໍ້ມູນຈຳນວນໝູ່ທີ່ແນະນຳ (ເພີ່ມໃໝ່)
-            fetch(`https://lucky-backend-api.onrender.com/api/referral-stats/${telegramId}`)
-                .then(r => r.json())
-                .then(data => {
-                    document.getElementById('friendsCount').innerText = data.friends_count;
-                })
-                .catch(() => {
-                    document.getElementById('friendsCount').innerText = "0";
-                });
-
-        } else {
-            document.getElementById('balance').innerText = "ບໍ່ພົບ ID";
-            document.getElementById('myTickets').innerText = "-";
-            document.getElementById('friendsCount').innerText = "-";
         }
 
-        // ຟັງຊັນສຳລັບກັອບປີ້ Link ແນະນຳ (ເພີ່ມໃໝ່)
+        if (telegramId) {
+            if (user?.first_name) document.getElementById('userInfo').innerText = `ສະບາຍດີ, ${user.first_name}!`;
+            fetchData(`https://lucky-backend-api.onrender.com/api/balance/${telegramId}`, 'balance', '0');
+            fetchData(`https://lucky-backend-api.onrender.com/api/tickets/${telegramId}`, 'myTickets', '-');
+            fetchData(`https://lucky-backend-api.onrender.com/api/referral-stats/${telegramId}`, 'friendsCount', '0');
+        }
+
         function copyReferralLink() {
-            if (!telegramId) {
-                tg.showAlert("❌ ບໍ່ພົບຂໍ້ມູນຜູ້ໃຊ້ ກະລຸນາລອງໃໝ່.");
-                return;
-            }
-            
-            const botUsername = 'LuckyNumbervip_bot'; // ປ່ຽນຕາມຊື່ bot ຂອງທ່ານ
-            const refLink = `https://t.me/${botUsername}?start=${telegramId}`;
-            
-            // ສ້າງ textarea ຈຳລອງເພື່ອ Copy (ຮອງຮັບທຸກບຼາວເຊີໃນມືຖື)
-            const textArea = document.createElement("textarea");
-            textArea.value = refLink;
-            document.body.appendChild(textArea);
-            textArea.select();
-            
-            try {
-                document.execCommand('copy');
-                tg.showAlert(`✅ ກັອບປີ້ສຳເລັດແລ້ວ!\n\nນຳ Link ນີ້ໄປສົ່ງໃຫ້ໝູ່ໄດ້ເລີຍ:\n${refLink}`);
-            } catch (err) {
-                tg.showAlert('❌ ບໍ່ສາມາດກັອບປີ້ໄດ້ ກະລຸນາລອງໃໝ່.');
-            }
-            
-            document.body.removeChild(textArea);
+            const refLink = `https://t.me/LuckyNumbervip_bot?start=${telegramId}`;
+            navigator.clipboard.writeText(refLink).then(() => tg.showAlert("✅ ກັອບປີ້ Link ສຳເລັດ!"));
         }
 
         const luckyInput = document.getElementById('luckyNumber');
-        const errorMsg = document.getElementById('errorMsg');
-
-        tg.MainButton.setText("ຊື້ຕົວເລກນີ້ (10 USDT)");
-        tg.MainButton.textColor = "#ffffff";
-        tg.MainButton.color = tg.themeParams.button_color || "#2481cc";
-
         function checkInput() {
-            let val = luckyInput.value.toString();
-            if (val.length > 5) {
-                val = val.slice(0, 5);
-                luckyInput.value = val;
-            }
-            if (val.length === 5) {
-                errorMsg.innerText = "";
-                tg.MainButton.show();
-            } else {
-                errorMsg.innerText = "ກະລຸນາປ້ອນຕົວເລກໃຫ້ຄົບ 5 ຫຼັກ";
-                tg.MainButton.hide();
-            }
+            if (luckyInput.value.length > 5) luckyInput.value = luckyInput.value.slice(0, 5);
+            luckyInput.value.length === 5 ? tg.MainButton.show() : tg.MainButton.hide();
         }
 
-        Telegram.WebApp.onEvent('mainButtonClicked', function(){
-            const numberToBuy = luckyInput.value;
-            const dataPayload = { action: "buy_number", number: numberToBuy };
-            tg.sendData(JSON.stringify(dataPayload));
+        tg.MainButton.setText("ຊື້ຕົວເລກນີ້ (10 USDT)");
+        tg.MainButton.onClick(() => {
+            tg.sendData(JSON.stringify({ action: "buy_number", number: luckyInput.value }));
             tg.close();
         });
     </script>
