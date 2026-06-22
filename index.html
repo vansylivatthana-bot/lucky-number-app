@@ -49,7 +49,7 @@
             color: #dc3545;
             height: 20px;
         }
-        /* ກ່ອງປະຫວັດການຊື້ */
+        /* ກ່ອງປະຫວັດ ແລະ ນາຍໜ້າ */
         .history-box {
             margin-top: 20px;
             padding: 15px;
@@ -63,6 +63,18 @@
             color: var(--tg-theme-button-color, #2481cc);
             margin-top: 10px;
             letter-spacing: 2px;
+        }
+        .referral-btn {
+            margin-top: 10px;
+            padding: 12px 20px;
+            background: var(--tg-theme-button-color, #2481cc);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -87,6 +99,16 @@
         <div class="ticket-list" id="myTickets">ກຳລັງໂຫຼດປະຫວັດ...</div>
     </div>
 
+    <div class="history-box" style="border-color: #4CAF50;">
+        <h3 style="margin-top: 0; color: #4CAF50;">🤝 ລະບົບນາຍໜ້າ (Affiliate)</h3>
+        <p style="font-size: 14px; margin-bottom: 10px; color: gray;">ຊວນໝູ່ມາຊື້ ຮັບຄ່ານາຍໜ້າ 5% ເຂົ້າກະເປົາອັດຕະໂນມັດ!</p>
+        <p style="font-size: 16px; font-weight: bold;">ຈຳນວນໝູ່ທີ່ແນະນຳ: <span id="friendsCount" style="color: #e6b800;">ກຳລັງໂຫຼດ...</span> ຄົນ</p>
+        
+        <button class="referral-btn" onclick="copyReferralLink()">
+            📋 ກັອບປີ້ Link ສົ່ງໃຫ້ໝູ່
+        </button>
+    </div>
+
     <script>
         const tg = window.Telegram.WebApp;
         tg.ready(); 
@@ -108,22 +130,59 @@
                 .then(data => document.getElementById('balance').innerText = `${data.balance} USDT`)
                 .catch(() => document.getElementById('balance').innerText = "Error");
 
-            // 2. ດຶງປະຫວັດການຊື້ (ເພີ່ມໃໝ່)
+            // 2. ດຶງປະຫວັດການຊື້
             fetch(`https://lucky-backend-api.onrender.com/api/tickets/${telegramId}`)
                 .then(r => r.json())
                 .then(data => {
                     const ticketBox = document.getElementById('myTickets');
                     if (data.tickets && data.tickets.length > 0) {
-                        // ເອົາເລກທຸກໂຕມາຕໍ່ກັນ ໂດຍຍະຫວ່າງດ້ວຍເຄື່ອງໝາຍຈຸດ
                         ticketBox.innerText = data.tickets.map(t => t.ticket_number).join(', ');
                     } else {
                         ticketBox.innerText = "ຍັງບໍ່ມີປະຫວັດການຊື້";
                     }
                 })
                 .catch(() => document.getElementById('myTickets').innerText = "ບໍ່ສາມາດໂຫຼດປະຫວັດໄດ້");
+
+            // 3. ດຶງຂໍ້ມູນຈຳນວນໝູ່ທີ່ແນະນຳ (ເພີ່ມໃໝ່)
+            fetch(`https://lucky-backend-api.onrender.com/api/referral-stats/${telegramId}`)
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('friendsCount').innerText = data.friends_count;
+                })
+                .catch(() => {
+                    document.getElementById('friendsCount').innerText = "0";
+                });
+
         } else {
             document.getElementById('balance').innerText = "ບໍ່ພົບ ID";
             document.getElementById('myTickets').innerText = "-";
+            document.getElementById('friendsCount').innerText = "-";
+        }
+
+        // ຟັງຊັນສຳລັບກັອບປີ້ Link ແນະນຳ (ເພີ່ມໃໝ່)
+        function copyReferralLink() {
+            if (!telegramId) {
+                tg.showAlert("❌ ບໍ່ພົບຂໍ້ມູນຜູ້ໃຊ້ ກະລຸນາລອງໃໝ່.");
+                return;
+            }
+            
+            const botUsername = 'LuckyNumbervip_bot'; // ປ່ຽນຕາມຊື່ bot ຂອງທ່ານ
+            const refLink = `https://t.me/${botUsername}?start=${telegramId}`;
+            
+            // ສ້າງ textarea ຈຳລອງເພື່ອ Copy (ຮອງຮັບທຸກບຼາວເຊີໃນມືຖື)
+            const textArea = document.createElement("textarea");
+            textArea.value = refLink;
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                tg.showAlert(`✅ ກັອບປີ້ສຳເລັດແລ້ວ!\n\nນຳ Link ນີ້ໄປສົ່ງໃຫ້ໝູ່ໄດ້ເລີຍ:\n${refLink}`);
+            } catch (err) {
+                tg.showAlert('❌ ບໍ່ສາມາດກັອບປີ້ໄດ້ ກະລຸນາລອງໃໝ່.');
+            }
+            
+            document.body.removeChild(textArea);
         }
 
         const luckyInput = document.getElementById('luckyNumber');
