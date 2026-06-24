@@ -172,32 +172,42 @@
         const urlUserId = urlParams.get('userid');
         const telegramId = (user && user.id) ? user.id : urlUserId;
 
-        async function fetchData(url, elementId, callback) {
+        // ຟັງຊັນດຶງຂໍ້ມູນລວມສູນ (ຍິງບາດດຽວ ໄດ້ຄົບທຸກຢ່າງ)
+        async function loadAppStats() {
             try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error();
-                const data = await response.json();
-                callback(data);
-            } catch (err) {
-                document.getElementById(elementId).innerText = "ກຳລັງເຊື່ອມຕໍ່...";
-                setTimeout(() => fetchData(url, elementId, callback), 3000);
-            }
-        }
-
-        async function fetchPrizePool() {
-            try {
-                const response = await fetch('https://lucky-backend-api.onrender.com/api/prize-pool');
+                const response = await fetch(`https://lucky-backend-api.onrender.com/api/init-app/${telegramId}`);
                 if (!response.ok) throw new Error();
                 const data = await response.json();
                 
-                document.getElementById('p1').innerText = `${data.prize_1} USDT`;
-                document.getElementById('p2').innerText = `${data.prize_2} USDT (ຕໍ່ລາງວັນ)`;
-                document.getElementById('p3').innerText = `${data.prize_3} USDT (ຕໍ່ລາງວັນ)`;
+                // 1. ສະແດງຍອດເງິນ
+                document.getElementById('balance').innerText = `${data.balance} USDT`;
+                
+                // 2. ສະແດງມູນຄ່າລາງວັນ
+                document.getElementById('p1').innerText = `${data.prizes.prize_1} USDT`;
+                document.getElementById('p2').innerText = `${data.prizes.prize_2} USDT (ແຕ່ລະລາງວັນ)`;
+                document.getElementById('p3').innerText = `${data.prizes.prize_3} USDT (ແຕ່ລະລາງວັນ)`;
+                
+                // 3. ສະແດງປະຫວັດການຊື້
+                const ticketBox = document.getElementById('myTickets');
+                if (data.tickets && data.tickets.length > 0) {
+                    ticketBox.innerText = data.tickets.map(t => t.ticket_number).join(', ');
+                } else {
+                    ticketBox.innerText = "ຍັງບໍ່ມີປະຫວັດການຊື້";
+                }
+                
+                // 4. ສະແດງຈຳນວນນາຍໜ້າ
+                document.getElementById('friendsCount').innerText = data.friends_count;
+
             } catch (err) {
-                document.getElementById('p1').innerText = "ກຳລັງເຊື່ອມຕໍ່...";
-                document.getElementById('p2').innerText = "ກຳລັງເຊື່ອມຕໍ່...";
-                document.getElementById('p3').innerText = "ກຳລັງເຊື່ອມຕໍ່...";
-                setTimeout(fetchPrizePool, 3000);
+                // ຖ້າຫຼົ້ມ ໃຫ້ສະແດງສະຖານະ ແລະ ລອງໃໝ່ທັງໝົດໃນ 3 ວິນາທີ
+                document.getElementById('balance').innerText = "ກຳລັງໂຫຼດ...";
+                document.getElementById('p1').innerText = "ກຳລັງໂຫຼດ...";
+                document.getElementById('p2').innerText = "ກຳລັງໂຫຼດ...";
+                document.getElementById('p3').innerText = "ກຳລັງໂຫຼດ...";
+                document.getElementById('myTickets').innerText = "ກຳລັງໂຫຼດ...";
+                document.getElementById('friendsCount').innerText = "ກຳລັງໂຫຼດ...";
+                
+                setTimeout(loadAppStats, 3000);
             }
         }
 
@@ -205,26 +215,8 @@
             if (user && user.first_name) {
                 document.getElementById('userInfo').innerText = `ສະບາຍດີ, ${user.first_name}!`;
             }
-
-            fetchData(`https://lucky-backend-api.onrender.com/api/balance/${telegramId}`, 'balance', (data) => {
-                document.getElementById('balance').innerText = `${data.balance} USDT`;
-            });
-
-            fetchData(`https://lucky-backend-api.onrender.com/api/tickets/${telegramId}`, 'myTickets', (data) => {
-                const ticketBox = document.getElementById('myTickets');
-                if (data.tickets && data.tickets.length > 0) {
-                    ticketBox.innerText = data.tickets.map(t => t.ticket_number).join(', ');
-                } else {
-                    ticketBox.innerText = "ຍັງບໍ່ມີປະຫວັດການຊື້";
-                }
-            });
-
-            fetchData(`https://lucky-backend-api.onrender.com/api/referral-stats/${telegramId}`, 'friendsCount', (data) => {
-                document.getElementById('friendsCount').innerText = data.friends_count;
-            });
-
-            fetchPrizePool();
-
+            // ເອີ້ນໃຊ້ງານຟັງຊັນລວມສູນ
+            loadAppStats();
         } else {
             document.getElementById('balance').innerText = "ບໍ່ພົບ ID";
             document.getElementById('myTickets').innerText = "-";
