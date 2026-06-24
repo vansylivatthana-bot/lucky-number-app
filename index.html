@@ -5,9 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lucky Number VIP</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;700&display=swap" rel="stylesheet">
+
     <style>
+        /* --- ບັງຄັບໃຫ້ທຸກສ່ວນໃນແອັບໃຊ້ Noto Sans Lao --- */
+        * {
+            font-family: 'Noto Sans Lao', sans-serif !important;
+        }
+        
         body {
-            font-family: sans-serif;
             background-color: var(--tg-theme-bg-color, #ffffff);
             color: var(--tg-theme-text-color, #000000);
             margin: 0;
@@ -27,7 +36,6 @@
             color: #28a745;
             margin-top: 5px;
         }
-        /* --- ກ່ອງສະແດງມູນຄ່າລາງວັນສະສົມ (ເພີ່ມໃໝ່) --- */
         .prize-container {
             background: linear-gradient(135deg, #ff9900, #ff5500);
             color: white;
@@ -56,7 +64,6 @@
             color: #ffff00; 
             text-align: right;
         }
-        /* ----------------------------------------------- */
         .input-group {
             margin: 20px 0;
         }
@@ -131,6 +138,7 @@
             <span class="prize-amount" id="p3">ກຳລັງໂຫຼດ...</span>
         </div>
     </div>
+
     <h3>ເລືອກຕົວເລກນຳໂຊກຂອງທ່ານ</h3>
     <p style="font-size: 14px; color: gray;">ປ້ອນຕົວເລກ 5 ຫຼັກ (00000 - 99999)</p>
 
@@ -146,7 +154,7 @@
 
     <div class="history-box" style="border-color: #4CAF50;">
         <h3 style="margin-top: 0; color: #4CAF50;">🤝 ລະບົບນາຍໜ້າ (Affiliate)</h3>
-        <p style="font-size: 14px; margin-bottom: 10px; color: gray;">ชວນໝູ່ມາຊື້ ຮັບຄ່ານາຍໜ້າ 5% ເຂົ້າກະເປົາອັດຕະໂນມັດ!</p>
+        <p style="font-size: 14px; margin-bottom: 10px; color: gray;">ຊວນໝູ່ມາຊື້ ຮັບຄ່ານາຍໜ้า 5% ເխົ້າກະເປົາອັດຕະໂນມັດ!</p>
         <p style="font-size: 16px; font-weight: bold;">ຈຳນວນໝູ່ທີ່ແນະນຳ: <span id="friendsCount" style="color: #e6b800;">ກຳລັງໂຫຼດ...</span> ຄົນ</p>
         
         <button class="referral-btn" onclick="copyReferralLink()">
@@ -164,7 +172,6 @@
         const urlUserId = urlParams.get('userid');
         const telegramId = (user && user.id) ? user.id : urlUserId;
 
-        // ຟັງຊັນດຶງຂໍ້ມູນທົ່ວໄປແບບມີ Retry (ລອງໃໝ່ອັດຕະໂນມັດເມື່ອ Render ຫຼັບ)
         async function fetchData(url, elementId, callback) {
             try {
                 const response = await fetch(url);
@@ -177,7 +184,6 @@
             }
         }
 
-        // ຟັງຊັນດຶງຂໍ້ມູນກອງທຶນລາງວັນສະສົມແບບມີ Retry (ເພີ່ມໃໝ່)
         async function fetchPrizePool() {
             try {
                 const response = await fetch('https://lucky-backend-api.onrender.com/api/prize-pool');
@@ -185,8 +191,8 @@
                 const data = await response.json();
                 
                 document.getElementById('p1').innerText = `${data.prize_1} USDT`;
-                document.getElementById('p2').innerText = `${data.prize_2} USDT (ແຕ່ລະລາງວັນ)`;
-                document.getElementById('p3').innerText = `${data.prize_3} USDT (ແຕ່ລະລາງວັນ)`;
+                document.getElementById('p2').innerText = `${data.prize_2} USDT (ຕໍ່ລາງວັນ)`;
+                document.getElementById('p3').innerText = `${data.prize_3} USDT (ຕໍ່ລາງວັນ)`;
             } catch (err) {
                 document.getElementById('p1').innerText = "ກຳລັງເຊື່ອມຕໍ່...";
                 document.getElementById('p2').innerText = "ກຳລັງເຊື່ອມຕໍ່...";
@@ -200,12 +206,10 @@
                 document.getElementById('userInfo').innerText = `ສະບາຍດີ, ${user.first_name}!`;
             }
 
-            // 1. ດຶງຍອດເງິນ
             fetchData(`https://lucky-backend-api.onrender.com/api/balance/${telegramId}`, 'balance', (data) => {
                 document.getElementById('balance').innerText = `${data.balance} USDT`;
             });
 
-            // 2. ດຶງປະຫວັດການຊື້
             fetchData(`https://lucky-backend-api.onrender.com/api/tickets/${telegramId}`, 'myTickets', (data) => {
                 const ticketBox = document.getElementById('myTickets');
                 if (data.tickets && data.tickets.length > 0) {
@@ -215,12 +219,10 @@
                 }
             });
 
-            // 3. ດຶງຂໍ້ມູນນາຍໜ້າ
             fetchData(`https://lucky-backend-api.onrender.com/api/referral-stats/${telegramId}`, 'friendsCount', (data) => {
                 document.getElementById('friendsCount').innerText = data.friends_count;
             });
 
-            // 4. ເອີ້ນດຶງຂໍ້ມູນລາງວັນສະສົມ (ເພີ່ມໃໝ່)
             fetchPrizePool();
 
         } else {
@@ -232,7 +234,6 @@
             document.getElementById('p3').innerText = "-";
         }
 
-        // ຟັງຊັນສຳລັບກັອບປີ້ Link ແນະນຳ
         function copyReferralLink() {
             if (!telegramId) {
                 tg.showAlert("❌ ບໍ່ພົບຂໍ້ມູນຜູ້ໃຊ້ ກະລຸນາລອງໃໝ່.");
@@ -240,7 +241,6 @@
             }
             const refLink = `https://t.me/LuckyNumbervip_bot?start=${telegramId}`;
             
-            // ໃຊ້ Clipboard API ທີ່ທັນສະໄໝ
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(refLink).then(() => {
                     tg.showAlert(`✅ ກັອບປີ້ Link ສຳເລັດແລ້ວ!\n\nນຳ Link ນີ້ໄປສົ່ງໃຫ້ໝູ່ໄດ້ເລີຍ:\n${refLink}`);
