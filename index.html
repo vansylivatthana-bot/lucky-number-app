@@ -258,12 +258,14 @@
             document.body.removeChild(textArea);
         }
 
+        // --- ປ່ຽນສ່ວນຈັດການ Main Button ຢູ່ລຸ່ມສຸດ ໃຫ້ເປັນແບບນີ້ ---
         const luckyInput = document.getElementById('luckyNumber');
         const errorMsg = document.getElementById('errorMsg');
 
+        // ຕັ້ງຄ່າປຸ່ມເລີ່ມຕົ້ນ
         tg.MainButton.setText("ຊື້ຕົວເລກນີ້ (5 USDT)");
         tg.MainButton.textColor = "#ffffff";
-        tg.MainButton.color = tg.themeParams.button_color || "#2481cc";
+        tg.MainButton.color = "#2481cc";
 
         function checkInput() {
             let val = luckyInput.value.toString();
@@ -275,16 +277,18 @@
                 errorMsg.innerText = "";
                 tg.MainButton.show();
             } else {
-                errorMsg.innerText = "ກະລຸນາປ້ອນຕົວເລກໃຫ້ຄົບ 5 ຫຼັກ";
+                errorMsg.innerText = "กະລຸນາປ້ອນຕົວເລກໃຫ້ຄົບ 5 ຫຼັກ";
                 tg.MainButton.hide();
             }
         }
 
-        Telegram.WebApp.onEvent('mainButtonClicked', function(){
+        // ວິທີຂຽນແບບໃໝ່ (ຮອງຮັບທັງ iOS, Android, PC ບໍ່ມີຫຼຸດ)
+        tg.onEvent('mainButtonClicked', function() {
             const numberToBuy = luckyInput.value;
             const dataPayload = { action: "buy_number", number: numberToBuy };
+    
+            // ສົ່ງຂໍ້ມູນ ແລະ ປິດແອັບ
             tg.sendData(JSON.stringify(dataPayload));
-            tg.close();
         });
     </script>
 </body>
