@@ -282,13 +282,22 @@
             }
         }
 
-        // ວິທີຂຽນແບບໃໝ່ (ຮອງຮັບທັງ iOS, Android, PC ບໍ່ມີຫຼຸດ)
+        // --- ປ່ຽນສ່ວນ tg.onEvent('mainButtonClicked') ຢູ່ລຸ່ມສຸດ ໃຫ້ເປັນແບບນີ້ ---
         tg.onEvent('mainButtonClicked', function() {
             const numberToBuy = luckyInput.value;
             const dataPayload = { action: "buy_number", number: numberToBuy };
     
-            // ສົ່ງຂໍ້ມູນ ແລະ ປິດແອັບ
-            tg.sendData(JSON.stringify(dataPayload));
+            try {
+                // ສົ່ງຂໍ້ມູນກັບຫາບັອດ (ຈະສຳເລັດເມື່ອເປີດຜ່ານປຸ່ມຄີບອດດ້ານລຸ່ມ)
+                tg.sendData(JSON.stringify(dataPayload));
+        
+                // ບັງຄັບປິດແອັບທັນທີ
+                tg.close();
+            } catch (e) {
+                // ຖ້າຖືກ Telegram ບລັອກ (ຍ້ອນເປີດຜ່ານປຸ່ມ Open ດ້ານເທິງ)
+                tg.showAlert("⚠️ ກະລຸນາເປີດແອັບຜ່ານປຸ່ມ '📲 ເປີດແອັບຊື້ຕົວເລກ' ຢູ່ດ້ານລຸ່ມຂອງຫ້ອງແຊັດ ເພື່ອທຳການຊື້ເລກຄຣັບ.");
+                tg.close();
+            }
         });
     </script>
 </body>
